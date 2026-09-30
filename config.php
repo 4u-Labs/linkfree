@@ -1,12 +1,12 @@
 <?php
-// config.php - ConexÃ£o SQLite e ConfiguraÃ§Ãµes Globais
+// config.php - Conexão SQLite e Configurações Globais
 // LOCAL: /raiz_do_projeto/config.php
 
 // 1. Definição da URL Base
 $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
 $host = $_SERVER['HTTP_HOST'] ?? '4u.ia.br';
 
-// Detecta o diretÃ³rio base do projeto (onde estÃ¡ o config.php)
+// Detecta o diretório base do projeto (onde está o config.php)
 $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME']));
 $configDir = str_replace('\\', '/', dirname(__FILE__));
 $docRoot = str_replace('\\', '/', $_SERVER['DOCUMENT_ROOT']);
@@ -49,15 +49,26 @@ try {
     )");
 
     // Migração transparente de colunas para bancos existentes
-    $cols = $pdo->query("PRAGMA table_info(users)")->fetchAll(PDO::FETCH_COLUMN, 1);
-    if (!in_array('email', $cols)) {
-        $pdo->exec("ALTER TABLE users ADD COLUMN email TEXT DEFAULT NULL");
-    }
-    if (!in_array('google_id', $cols)) {
-        $pdo->exec("ALTER TABLE users ADD COLUMN google_id TEXT DEFAULT NULL");
-    }
-    if (!in_array('bio', $cols)) {
-        $pdo->exec("ALTER TABLE users ADD COLUMN bio TEXT DEFAULT NULL");
+    $uCols = $pdo->query("PRAGMA table_info(users)")->fetchAll(PDO::FETCH_COLUMN, 1);
+    $newU = [
+        'email' => 'TEXT DEFAULT NULL',
+        'google_id' => 'TEXT DEFAULT NULL',
+        'bio' => 'TEXT DEFAULT NULL',
+        'title' => 'TEXT DEFAULT NULL',
+        'theme' => "TEXT DEFAULT 'glass'",
+        'is_verified' => 'INTEGER DEFAULT 1',
+        'views' => 'INTEGER DEFAULT 0',
+        'social_instagram' => 'TEXT DEFAULT NULL',
+        'social_whatsapp' => 'TEXT DEFAULT NULL',
+        'social_youtube' => 'TEXT DEFAULT NULL',
+        'social_tiktok' => 'TEXT DEFAULT NULL',
+        'social_github' => 'TEXT DEFAULT NULL',
+        'social_linkedin' => 'TEXT DEFAULT NULL'
+    ];
+    foreach ($newU as $col => $def) {
+        if (!in_array($col, $uCols)) {
+            $pdo->exec("ALTER TABLE users ADD COLUMN {$col} {$def}");
+        }
     }
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS links (
@@ -71,6 +82,20 @@ try {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     )");
+
+    $lCols = $pdo->query("PRAGMA table_info(links)")->fetchAll(PDO::FETCH_COLUMN, 1);
+    $newL = [
+        'type' => "TEXT DEFAULT 'link'",
+        'pix_key' => 'TEXT DEFAULT NULL',
+        'pix_type' => 'TEXT DEFAULT NULL',
+        'whatsapp_msg' => 'TEXT DEFAULT NULL',
+        'is_active' => 'INTEGER DEFAULT 1'
+    ];
+    foreach ($newL as $col => $def) {
+        if (!in_array($col, $lCols)) {
+            $pdo->exec("ALTER TABLE links ADD COLUMN {$col} {$def}");
+        }
+    }
 
 } catch (PDOException $e) {
     die("Erro Crítico ao criar/conectar banco de dados: " . $e->getMessage());

@@ -1,18 +1,18 @@
 <?php
-// functions.php - FunÃ§Ãµes principais do sistema
+// functions.php - Funções principais do sistema LinkFree
 // LOCAL: /raiz_do_projeto/functions.php
 
 require_once __DIR__ . '/config.php';
 
 const SECURITY_QUESTIONS = [
-    1 => "Qual o nome completo da sua mÃ£e?",
-    2 => "Qual o nome do seu primeiro animal de estimaÃ§Ã£o?",
-    3 => "Qual o nome da cidade onde vocÃª nasceu?",
+    1 => "Qual o nome completo da sua mãe?",
+    2 => "Qual o nome do seu primeiro animal de estimação?",
+    3 => "Qual o nome da cidade onde você nasceu?",
     4 => "Qual era o modelo do seu primeiro carro?",
-    5 => "Qual o nome do seu melhor amigo(a) de infÃ¢ncia?"
+    5 => "Qual o nome do seu melhor amigo(a) de infância?"
 ];
 
-// --- AutenticaÃ§Ã£o ---
+// --- Autenticação Tradicional ---
 
 function registerUser(string $username, string $password, string $tag, int $securityQuestionId, string $securityAnswer): bool|string {
     $pdo = getDbConnection();
@@ -20,13 +20,13 @@ function registerUser(string $username, string $password, string $tag, int $secu
     $tag = trim(strtolower($tag));
     
     if (empty($username) || empty($tag)) return "Preencha todos os campos.";
-    if (strlen($password) < 8) return "Senha muito curta (mÃ­nimo 8 caracteres).";
-    if (!preg_match('/^[a-z0-9-]+$/', $tag)) return "Tag invÃ¡lida. Use apenas letras minÃºsculas, nÃºmeros e hÃ­fen.";
+    if (strlen($password) < 8) return "Senha muito curta (mínimo 8 caracteres).";
+    if (!preg_match('/^[a-z0-9-]+$/', $tag)) return "Tag inválida. Use apenas letras minúsculas, números e hífen.";
     
     try {
         $stmt = $pdo->prepare("SELECT id FROM users WHERE username = :u OR tag = :t");
         $stmt->execute([':u' => $username, ':t' => $tag]);
-        if ($stmt->fetch()) return "Nome de usuÃ¡rio ou Tag jÃ¡ estÃ£o em uso.";
+        if ($stmt->fetch()) return "Nome de usuário ou Tag já estão em uso.";
 
         $passHash = password_hash($password, PASSWORD_DEFAULT);
         $ansHash = password_hash(strtolower(trim($securityAnswer)), PASSWORD_DEFAULT);
@@ -46,7 +46,7 @@ function registerUser(string $username, string $password, string $tag, int $secu
 function loginUser(string $username, string $password): bool|string {
     $pdo = getDbConnection();
     try {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :u");
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = :u OR email = :u");
         $stmt->execute([':u' => $username]);
         $user = $stmt->fetch();
 
@@ -63,6 +63,8 @@ function loginUser(string $username, string $password): bool|string {
         return "Erro ao tentar logar.";
     }
 }
+
+// --- Autenticação Google OAuth 2.0 ---
 
 function authenticateWithGoogle(string $credential = '', ?string $accessToken = null): bool|string {
     $email = '';
@@ -199,50 +201,181 @@ function logoutUser(): void { $_SESSION = []; session_destroy(); }
 function getCurrentUserId(): ?int { return $_SESSION['user_id'] ?? null; }
 function getCurrentUserTag(): ?string { return $_SESSION['user_tag'] ?? null; }
 
-// --- CRUD de Links ---
+// --- Usuários & Perfis ---
 
-function addLink(int $userId, string $title, string $url, ?string $icon = null): array|string {
+function getUserById(int $userId): ?array {
     $pdo = getDbConnection();
-    $url = trim($url);
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE id = :id");
+        $stmt->execute([':id' => $userId]);
+        $res = $stmt->fetch();
+        return $res ?: null;
+    } catch (PDOException $e) { return null; }
+}
+
+function getUserByTag(string $tag): ?array {
+    $pdo = getDbConnection();
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM users WHERE tag = :tag");
+        $stmt->execute([':tag' => strtolower(trim($tag))]);
+        $res = $stmt->fetch();
+        return $res ?: null;
+    } catch (PDOException $e) { return null; }
+}
+
+function incrementUserViews(int $userId): void {
+    $pdo = getDbConnection();
+    try {
+        $stmt = $pdo->prepare("UPDATE users SET views = COALESCE(views, 0) + 1 WHERE id = :id");
+        $stmt->execute([':id' => $userId]);
+    } catch (PDOException $e) {}
+}
+
+function incrementLinkClicks(int $linkId): void {
+    $pdo = getDbConnection();
+    try {
+        $stmt = $pdo->prepare("UPDATE links SET clicks = COALESCE(clicks, 0) + 1 WHERE id = :id");
+        $stmt->execute([':id' => $linkId]);
+    } catch (PDOException $e) {}
+}
+
+function updateUserProfileExtended(int $userId, array $data): bool|string {
+    $pdo = getDbConnection();
+    $newTag = strtolower(trim($data['tag'] ?? ''));
+    $newUsername = trim($data['username'] ?? '');
+    $title = trim($data['title'] ?? '');
+    $bio = trim($data['bio'] ?? '');
+    $theme = trim($data['theme'] ?? 'glass');
+    $socialIg = trim($data['social_instagram'] ?? '');
+    $socialWa = trim($data['social_whatsapp'] ?? '');
+    $socialYt = trim($data['social_youtube'] ?? '');
+    $socialTk = trim($data['social_tiktok'] ?? '');
+    $socialGh = trim($data['social_github'] ?? '');
+    $socialLi = trim($data['social_linkedin'] ?? '');
     
-    // Detecção automática de ícone se não foi informado ou está vazio
-    if (empty($icon)) {
-        $icon = detectIconFromUrl($url);
+    if (!preg_match('/^[a-z0-9-]+$/', $newTag)) {
+        return "Tag inválida. Use apenas letras minúsculas, números e hífen.";
     }
     
     try {
-        $sql = "INSERT INTO links (user_id, title, url, icon) VALUES (:uid, :title, :url, :icon)";
+        $stmtCheck = $pdo->prepare("SELECT id FROM users WHERE (tag = :t OR username = :u) AND id != :uid");
+        $stmtCheck->execute([':t' => $newTag, ':u' => $newUsername, ':uid' => $userId]);
+        if ($stmtCheck->fetch()) return "Tag ou Usuário já estão em uso por outra conta.";
+
+        $sql = "UPDATE users SET 
+                    username = :u, 
+                    tag = :t, 
+                    title = :title, 
+                    bio = :bio, 
+                    theme = :theme,
+                    social_instagram = :ig,
+                    social_whatsapp = :wa,
+                    social_youtube = :yt,
+                    social_tiktok = :tk,
+                    social_github = :gh,
+                    social_linkedin = :li
+                WHERE id = :uid";
         $stmt = $pdo->prepare($sql);
-        $success = $stmt->execute([':uid' => $userId, ':title' => trim($title), ':url' => $url, ':icon' => $icon]);
+        $stmt->execute([
+            ':u' => $newUsername, 
+            ':t' => $newTag, 
+            ':title' => $title,
+            ':bio' => $bio,
+            ':theme' => $theme,
+            ':ig' => $socialIg,
+            ':wa' => $socialWa,
+            ':yt' => $socialYt,
+            ':tk' => $socialTk,
+            ':gh' => $socialGh,
+            ':li' => $socialLi,
+            ':uid' => $userId
+        ]);
+        
+        $_SESSION['username'] = $newUsername;
+        $_SESSION['user_tag'] = $newTag;
+        return true;
+    } catch (PDOException $e) { 
+        return "Erro ao atualizar perfil: " . $e->getMessage(); 
+    }
+}
+
+// --- CRUD de Links Avançado ---
+
+function addLinkExtended(int $userId, array $data): array|string {
+    $pdo = getDbConnection();
+    $title = trim($data['title'] ?? '');
+    $url = trim($data['url'] ?? '');
+    $icon = trim($data['icon'] ?? '');
+    $type = trim($data['type'] ?? 'link');
+    $pixKey = trim($data['pix_key'] ?? '');
+    $pixType = trim($data['pix_type'] ?? 'aleatoria');
+    $whatsappMsg = trim($data['whatsapp_msg'] ?? '');
+
+    if ($type === 'link' || $type === 'youtube' || $type === 'spotify') {
+        if (empty($title) || empty($url)) return "Título e URL são obrigatórios.";
+    } elseif ($type === 'pix') {
+        if (empty($title)) $title = "Pague via PIX";
+        if (empty($pixKey)) return "Informe a Chave PIX.";
+        if (empty($icon)) $icon = 'fas fa-qrcode';
+        $url = '#pix';
+    } elseif ($type === 'whatsapp') {
+        if (empty($title)) $title = "Fale Comigo no WhatsApp";
+        $cleanPhone = preg_replace('/[^0-9]/', '', $url);
+        if (empty($cleanPhone)) return "Informe o número de WhatsApp com DDD.";
+        $url = "https://wa.me/" . $cleanPhone . ($whatsappMsg ? "?text=" . urlencode($whatsappMsg) : "");
+        if (empty($icon)) $icon = 'fab fa-whatsapp';
+    }
+
+    if (empty($icon)) {
+        $icon = detectIconFromUrl($url);
+    }
+
+    try {
+        $sql = "INSERT INTO links (user_id, title, url, icon, type, pix_key, pix_type, whatsapp_msg) 
+                VALUES (:uid, :title, :url, :icon, :type, :pkey, :ptype, :wmsg)";
+        $stmt = $pdo->prepare($sql);
+        $success = $stmt->execute([
+            ':uid' => $userId, 
+            ':title' => $title, 
+            ':url' => $url, 
+            ':icon' => $icon,
+            ':type' => $type,
+            ':pkey' => $pixKey,
+            ':ptype' => $pixType,
+            ':wmsg' => $whatsappMsg
+        ]);
 
         if ($success) {
-            return ['id' => $pdo->lastInsertId(), 'title' => $title, 'url' => $url, 'icon' => $icon];
+            return [
+                'id' => $pdo->lastInsertId(), 
+                'title' => $title, 
+                'url' => $url, 
+                'icon' => $icon,
+                'type' => $type,
+                'pix_key' => $pixKey,
+                'pix_type' => $pixType,
+                'clicks' => 0
+            ];
         }
         return "Erro ao salvar link.";
-    } catch (PDOException $e) { return "Erro DB: " . $e->getMessage(); }
+    } catch (PDOException $e) { 
+        return "Erro DB: " . $e->getMessage(); 
+    }
 }
 
 function getUserLinks(int $userId): array {
     $pdo = getDbConnection();
     try {
-        $stmt = $pdo->prepare("SELECT * FROM links WHERE user_id = :uid ORDER BY id DESC");
+        $stmt = $pdo->prepare("SELECT * FROM links WHERE user_id = :uid ORDER BY position ASC, id DESC");
         $stmt->execute([':uid' => $userId]);
         return $stmt->fetchAll();
     } catch (PDOException $e) { return []; }
 }
 
-function updateLink(int $linkId, int $userId, string $title, string $url, ?string $icon = null): array|string {
-    $pdo = getDbConnection();
-    try {
-        $stmtCheck = $pdo->prepare("SELECT id FROM links WHERE id = :lid AND user_id = :uid");
-        $stmtCheck->execute([':lid' => $linkId, ':uid' => $userId]);
-        if (!$stmtCheck->fetch()) return "Link nÃ£o encontrado.";
-
-        $sql = "UPDATE links SET title = :title, url = :url, icon = :icon WHERE id = :lid";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([':title' => trim($title), ':url' => trim($url), ':icon' => $icon, ':lid' => $linkId]);
-        return ['id' => $linkId, 'title' => $title, 'url' => $url, 'icon' => $icon];
-    } catch (PDOException $e) { return "Erro ao atualizar."; }
+function getLinksByTag(string $tag): ?array {
+    $user = getUserByTag($tag);
+    if (!$user) return null;
+    return getUserLinks($user['id']);
 }
 
 function deleteLink(int $linkId, int $userId): bool {
@@ -254,50 +387,12 @@ function deleteLink(int $linkId, int $userId): bool {
     } catch (PDOException $e) { return false; }
 }
 
-// --- Perfil e Upload ---
-
-function getUserByTag(string $tag): ?array {
-    $pdo = getDbConnection();
-    $stmt = $pdo->prepare("SELECT id, username, tag, avatar_filename FROM users WHERE tag = :tag");
-    $stmt->execute([':tag' => strtolower(trim($tag))]);
-    $res = $stmt->fetch();
-    return $res ?: null;
-}
-
-function getLinksByTag(string $tag): ?array {
-    $user = getUserByTag($tag);
-    if (!$user) return null;
-    return getUserLinks($user['id']);
-}
-
-function updateUserProfile(int $userId, string $newUsername, string $newTag): bool|string {
-    $pdo = getDbConnection();
-    $newTag = strtolower(trim($newTag));
-    
-    if (!preg_match('/^[a-z0-9-]+$/', $newTag)) return "Tag invÃ¡lida. Use apenas letras minÃºsculas, nÃºmeros e hÃ­fen.";
-    
-    try {
-        $stmtCheck = $pdo->prepare("SELECT id FROM users WHERE (tag = :t OR username = :u) AND id != :uid");
-        $stmtCheck->execute([':t' => $newTag, ':u' => $newUsername, ':uid' => $userId]);
-        if ($stmtCheck->fetch()) return "Tag ou UsuÃ¡rio jÃ¡ em uso.";
-
-        $sql = "UPDATE users SET username = :u, tag = :t WHERE id = :uid";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([':u' => $newUsername, ':t' => $newTag, ':uid' => $userId]);
-        
-        $_SESSION['username'] = $newUsername;
-        $_SESSION['user_tag'] = $newTag;
-        return true;
-    } catch (PDOException $e) { return "Erro ao atualizar perfil."; }
-}
-
 // --- Detecção Automática de Ícone por URL ---
 
 function detectIconFromUrl(string $url): string {
     $url = strtolower($url);
     
     $icons = [
-        // Redes Sociais
         'instagram.com'     => 'fab fa-instagram',
         'facebook.com'      => 'fab fa-facebook',
         'fb.com'            => 'fab fa-facebook',
@@ -308,74 +403,37 @@ function detectIconFromUrl(string $url): string {
         'youtu.be'          => 'fab fa-youtube',
         'tiktok.com'        => 'fab fa-tiktok',
         'pinterest.com'     => 'fab fa-pinterest',
-        'snapchat.com'      => 'fab fa-snapchat',
         'reddit.com'        => 'fab fa-reddit',
-        'tumblr.com'        => 'fab fa-tumblr',
         'threads.net'       => 'fab fa-threads',
-        'mastodon'          => 'fab fa-mastodon',
         'bluesky'           => 'fab fa-bluesky',
         
-        // Mensageiros
         'whatsapp.com'      => 'fab fa-whatsapp',
         'wa.me'             => 'fab fa-whatsapp',
-        'api.whatsapp'      => 'fab fa-whatsapp',
         'telegram.org'      => 'fab fa-telegram',
         't.me'              => 'fab fa-telegram',
         'discord.gg'        => 'fab fa-discord',
         'discord.com'       => 'fab fa-discord',
-        'messenger.com'     => 'fab fa-facebook-messenger',
         
-        // Streaming/Gaming
         'twitch.tv'         => 'fab fa-twitch',
         'spotify.com'       => 'fab fa-spotify',
         'soundcloud.com'    => 'fab fa-soundcloud',
         'deezer.com'        => 'fab fa-deezer',
-        'apple.com/music'   => 'fab fa-apple',
-        'music.apple'       => 'fab fa-apple',
-        'steam'             => 'fab fa-steam',
-        'playstation'       => 'fab fa-playstation',
-        'xbox.com'          => 'fab fa-xbox',
-        'kick.com'          => 'fas fa-k',
-        
-        // Dev/Portfolio
+        'apple.com'         => 'fab fa-apple',
         'github.com'        => 'fab fa-github',
         'gitlab.com'        => 'fab fa-gitlab',
-        'bitbucket.org'     => 'fab fa-bitbucket',
-        'codepen.io'        => 'fab fa-codepen',
-        'stackoverflow'     => 'fab fa-stack-overflow',
-        'dev.to'            => 'fab fa-dev',
-        'medium.com'        => 'fab fa-medium',
         'behance.net'       => 'fab fa-behance',
         'dribbble.com'      => 'fab fa-dribbble',
         'figma.com'         => 'fab fa-figma',
         'notion.so'         => 'fas fa-n',
-        
-        // E-commerce/Negócios
         'amazon'            => 'fab fa-amazon',
         'shopee'            => 'fas fa-shopping-bag',
         'mercadolivre'      => 'fas fa-shopping-cart',
-        'shopify'           => 'fab fa-shopify',
-        'etsy.com'          => 'fab fa-etsy',
         'paypal.com'        => 'fab fa-paypal',
-        'patreon.com'       => 'fab fa-patreon',
-        'ko-fi.com'         => 'fas fa-coffee',
-        'buymeacoffee'      => 'fas fa-mug-hot',
         'pix'               => 'fas fa-qrcode',
-        
-        // Outros
         'google.com'        => 'fab fa-google',
         'drive.google'      => 'fab fa-google-drive',
-        'docs.google'       => 'fas fa-file-alt',
-        'maps.google'       => 'fas fa-map-marker-alt',
         'mailto:'           => 'fas fa-envelope',
-        'tel:'              => 'fas fa-phone',
-        'wordpress'         => 'fab fa-wordpress',
-        'blogger'           => 'fab fa-blogger',
-        'wix.com'           => 'fab fa-wix',
-        'dropbox.com'       => 'fab fa-dropbox',
-        'onedrive'          => 'fab fa-microsoft',
-        'linktr.ee'         => 'fas fa-tree',
-        'bio.link'          => 'fas fa-link',
+        'tel:'              => 'fas fa-phone'
     ];
     
     foreach ($icons as $domain => $icon) {
@@ -384,76 +442,65 @@ function detectIconFromUrl(string $url): string {
         }
     }
     
-    return 'fas fa-link'; // Ícone padrão
+    return 'fas fa-link';
 }
 
 function handleAvatarUpload(int $userId, array $fileData): array {
-    // Verifica erro de upload
     if ($fileData['error'] !== UPLOAD_ERR_OK) {
         $errorMessages = [
-            UPLOAD_ERR_INI_SIZE => 'Arquivo excede o limite do servidor (php.ini).',
-            UPLOAD_ERR_FORM_SIZE => 'Arquivo excede o limite do formulÃ¡rio.',
+            UPLOAD_ERR_INI_SIZE => 'Arquivo excede o limite do servidor.',
+            UPLOAD_ERR_FORM_SIZE => 'Arquivo excede o limite do formulário.',
             UPLOAD_ERR_PARTIAL => 'Upload incompleto.',
             UPLOAD_ERR_NO_FILE => 'Nenhum arquivo enviado.',
-            UPLOAD_ERR_NO_TMP_DIR => 'Pasta temporÃ¡ria nÃ£o encontrada.',
-            UPLOAD_ERR_CANT_WRITE => 'Falha ao escrever arquivo.',
-            UPLOAD_ERR_EXTENSION => 'Upload bloqueado por extensÃ£o PHP.'
+            UPLOAD_ERR_NO_TMP_DIR => 'Pasta temporária não encontrada.',
+            UPLOAD_ERR_CANT_WRITE => 'Falha ao escrever arquivo no disco.',
+            UPLOAD_ERR_EXTENSION => 'Upload bloqueado por extensão PHP.'
         ];
         $msg = $errorMessages[$fileData['error']] ?? 'Erro desconhecido no upload.';
         return ['success' => false, 'message' => $msg];
     }
     
-    // ValidaÃ§Ã£o de extensÃ£o
     $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
     $ext = strtolower(pathinfo($fileData['name'], PATHINFO_EXTENSION));
     
     if (!in_array($ext, $allowed)) {
-        return ['success' => false, 'message' => 'Formato nÃ£o permitido. Use: ' . implode(', ', $allowed)];
+        return ['success' => false, 'message' => 'Formato não permitido. Use: JPG, PNG, WEBP ou GIF'];
     }
     
-    // ValidaÃ§Ã£o de tamanho (2MB)
-    if ($fileData['size'] > 2 * 1024 * 1024) {
-        return ['success' => false, 'message' => 'Arquivo muito grande. MÃ¡ximo: 2MB.'];
+    if ($fileData['size'] > 4 * 1024 * 1024) {
+        return ['success' => false, 'message' => 'Arquivo muito grande. Máximo permitido: 4MB.'];
     }
     
-    // ValidaÃ§Ã£o de tipo MIME real
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mimeType = $finfo->file($fileData['tmp_name']);
     $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     
     if (!in_array($mimeType, $allowedMimes)) {
-        return ['success' => false, 'message' => 'Tipo de arquivo invÃ¡lido.'];
+        return ['success' => false, 'message' => 'Tipo de arquivo inválido.'];
     }
 
-    // Cria pasta avatars se nÃ£o existir
     if (!is_dir(AVATAR_UPLOAD_DIR)) {
         if (!@mkdir(AVATAR_UPLOAD_DIR, 0755, true)) {
-            return ['success' => false, 'message' => 'NÃ£o foi possÃ­vel criar a pasta avatars.'];
+            return ['success' => false, 'message' => 'Não foi possível criar a pasta avatars.'];
         }
     }
     
-    // Verifica se a pasta Ã© gravÃ¡vel
     if (!is_writable(AVATAR_UPLOAD_DIR)) {
-        return ['success' => false, 'message' => 'Pasta avatars sem permissÃ£o de escrita.'];
+        return ['success' => false, 'message' => 'Pasta avatars sem permissão de escrita.'];
     }
 
-    // Gera nome Ãºnico
     $newName = "user_" . $userId . "_" . time() . "." . $ext;
     $dest = AVATAR_UPLOAD_DIR . $newName;
 
-    // Move o arquivo
     if (move_uploaded_file($fileData['tmp_name'], $dest)) {
-        // Atualiza no banco
         $pdo = getDbConnection();
         $stmt = $pdo->prepare("UPDATE users SET avatar_filename = ? WHERE id = ?");
         $stmt->execute([$newName, $userId]);
         
-        // Atualiza sessÃ£o
         $_SESSION['avatar_filename'] = $newName;
-        
         return ['success' => true, 'filename' => $newName];
     }
     
-    return ['success' => false, 'message' => 'Falha ao mover arquivo. Verifique permissÃµes.'];
+    return ['success' => false, 'message' => 'Falha ao mover arquivo. Verifique permissões do servidor.'];
 }
 ?>

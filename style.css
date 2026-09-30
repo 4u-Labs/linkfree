@@ -1,13 +1,13 @@
-/* === ImportaÃ§Ãµes e VariÃ¡veis Globais === */
+/* === Importações e Variáveis Globais === */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto+Mono:wght@400;700&display=swap');
 
 :root {
     /* Paleta Dark Tech */
     --bg-color: #0a0f1f;         /* Azul muito escuro (quase preto) */
     --card-bg: #1a2035;         /* Azul acinzentado escuro para cards */
-    --primary-color: #00aeff;   /* Azul elÃ©trico/ciano para destaque */
+    --primary-color: #00aeff;   /* Azul elétrico/ciano para destaque */
     --secondary-color: #8a4fff; /* Roxo sutil para detalhes (opcional) */
-    --accent-color: #00ffaa;    /* Verde menta tech (usar com moderaÃ§Ã£o) */
+    --accent-color: #00ffaa;    /* Verde menta tech (usar com moderação) */
     --text-color: #e0e5f0;      /* Cinza muito claro (quase branco) */
     --text-muted: #a0aec0;      /* Cinza azulado mais claro */
     --border-color: #3a415c;    /* Borda azul acinzentada */
@@ -20,12 +20,12 @@
     --shadow-medium: 0 6px 20px rgba(0, 0, 0, 0.3);
     --border-radius: 6px; /* Bordas levemente arredondadas */
 
-    /* PadrÃ£o de fundo sutil (grade pontilhada) */
+    /* Padrão de fundo sutil (grade pontilhada) */
     --bg-pattern: radial-gradient(var(--border-color) 0.5px, transparent 0.5px);
     --bg-pattern-size: 15px 15px;
 }
 
-/* === Reset BÃ¡sico e Estilos Globais === */
+/* === Reset Básico e Estilos Globais === */
 * {
     margin: 0;
     padding: 0;
@@ -85,10 +85,10 @@ a:hover {
     color: #fff;
     opacity: 0.9;
 }
-/* Removido estilo especÃ­fico de footer a:hover aqui, tratado na seÃ§Ã£o Footer */
+/* Removido estilo específico de footer a:hover aqui, tratado na seção Footer */
 
 
-/* === AnimaÃ§Ã£o de Entrada === */
+/* === Animação de Entrada === */
 .reveal {
     opacity: 0;
     transform: translateY(30px);
@@ -135,7 +135,7 @@ section:not(#hero)::before {
     opacity: 0.3;
 }
 
-/* === BotÃµes === */
+/* === Botões === */
 .btn {
     display: inline-block;
     padding: 14px 35px;
@@ -192,7 +192,7 @@ section:not(#hero)::before {
     outline-offset: 2px;
 }
 
-/* === CabeÃ§alho === */
+/* === Cabeçalho === */
 header {
     position: fixed;
     top: 0;
@@ -281,7 +281,7 @@ nav ul li a.active::after {
 }
 
 
-/* === SeÃ§Ã£o Hero === */
+/* === Seção Hero === */
 #hero {
     padding: 120px 0;
     background: linear-gradient(rgba(10, 15, 31, 0.85), rgba(10, 15, 31, 0.95)),
@@ -344,7 +344,7 @@ nav ul li a.active::after {
     to { opacity: 0.15; transform: scaleX(1.2); }
 }
 
-/* === SeÃ§Ã£o Como Funciona === */
+/* === Seção Como Funciona === */
 #como-funciona .steps-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -396,7 +396,7 @@ nav ul li a.active::after {
     margin-bottom: 0.8rem;
 }
 
-/* === SeÃ§Ã£o Funcionalidades === */
+/* === Seção Funcionalidades === */
 #funcionalidades .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -444,7 +444,7 @@ nav ul li a.active::after {
     color: var(--text-muted);
 }
 
-/* === SeÃ§Ã£o Para Quem Ã‰ === */
+/* === Seção Para Quem É === */
 #para-quem-e .audience-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -485,10 +485,10 @@ nav ul li a.active::after {
     font-size: 1rem;
 }
 
-/* === SeÃ§Ã£o Depoimentos === */
+/* === Seção Depoimentos === */
 #depoimentos .testimonials-container {
     display: grid;
-    /* Ajustado para 3 colunas se houver espaÃ§o, senÃ£o cai para menos */
+    /* Ajustado para 3 colunas se houver espaço, senão cai para menos */
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 40px;
 }
@@ -540,7 +540,7 @@ nav ul li a.active::after {
     font-size: 0.95rem;
 }
 
-/* === SeÃ§Ã£o FAQ === */
+/* === Seção FAQ === */
 #faq .faq-container {
     max-width: 900px;
     margin: 0 auto;
@@ -641,7 +641,7 @@ nav ul li a.active::after {
     text-transform: uppercase;
 }
 
-/* === Responsividade (Manter ou ajustar se necessÃ¡rio) === */
+/* === Responsividade (Manter ou ajustar se necessário) === */
 /* ... (restante das regras de responsividade) ... */
 
 /* === Responsividade === */
@@ -674,7 +674,7 @@ nav ul li a.active::after {
         z-index: 999;
         border-top: 1px solid var(--border-color);
         overflow-y: auto;
-        /* NecessÃ¡rio display flex para o justify/align funcionar */
+        /* Necessário display flex para o justify/align funcionar */
         display: flex;
     }
 
@@ -733,7 +733,7 @@ nav ul li a.active::after {
     #faq details div { padding: 0 20px 20px 20px; }
 }
 /* =========================================
-   ESTILOS DE AUTENTICAÃ‡ÃƒO (Login/Registro)
+   ESTILOS DE AUTENTICAÍ‡ÍƒO (Login/Registro)
    Adicione isso ao final do seu style.css
    ========================================= */
 
@@ -815,7 +815,7 @@ nav ul li a.active::after {
     color: var(--primary-color);
 }
 
-/* BotÃµes do formulÃ¡rio */
+/* Botões do formulário */
 .auth-form .btn {
     width: 100%;
     margin-top: 10px;
@@ -965,4 +965,382 @@ nav ul li a.active::after {
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 1px;
+}
+
+/* ==========================================================================
+   DASHBOARD SPLIT-SCREEN & LIVE PHONE MOCKUP
+   ========================================================================== */
+.dashboard-split {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 35px;
+    align-items: start;
+    margin-top: 25px;
+    margin-bottom: 60px;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-split {
+        grid-template-columns: 1fr;
+    }
+    .preview-column {
+        display: none; /* Em telas menores foca no editor */
+    }
+}
+
+.editor-column {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.preview-column {
+    position: sticky;
+    top: 90px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Smartphone Mockup */
+.phone-mockup-wrapper {
+    position: relative;
+    width: 340px;
+    height: 680px;
+    background: #0f172a;
+    border-radius: 46px;
+    padding: 11px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 4px #334155, 0 0 30px rgba(0, 174, 255, 0.15);
+    border: 2px solid #475569;
+}
+
+/* Dynamic Island / Speaker */
+.phone-mockup-island {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 22px;
+    background: #000000;
+    border-radius: 20px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.phone-mockup-island::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: #111827;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.phone-screen {
+    width: 100%;
+    height: 100%;
+    border-radius: 36px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 48px 16px 24px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: background 0.3s ease, color 0.3s ease;
+    scrollbar-width: none;
+}
+.phone-screen::-webkit-scrollbar { display: none; }
+
+/* Phone Inner Preview Content */
+.preview-avatar {
+    width: 82px;
+    height: 82px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.preview-name-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 4px;
+}
+
+.preview-name {
+    font-family: var(--font-primary);
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.badge-verified {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: #3b82f6;
+    color: #ffffff;
+    border-radius: 50%;
+    font-size: 0.65rem;
+    flex-shrink: 0;
+}
+
+.preview-title {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.preview-bio {
+    font-size: 0.75rem;
+    opacity: 0.75;
+    text-align: center;
+    max-width: 250px;
+    margin-bottom: 14px;
+    line-height: 1.4;
+}
+
+.preview-socials {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.preview-social-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: inherit;
+    transition: transform 0.2s;
+}
+
+.preview-links-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.preview-link-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: inherit;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.15s ease;
+}
+
+/* ==========================================================================
+   THEME PALETTES
+   ========================================================================== */
+/* 1. Glass Dark (Padrão) */
+.theme-glass {
+    background: linear-gradient(135deg, #0a0f1f 0%, #111827 100%);
+    color: #e0e5f0;
+}
+.theme-glass .preview-avatar { border: 3px solid #00aeff; }
+.theme-glass .preview-link-card {
+    background: rgba(26, 32, 53, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.theme-glass .preview-link-card:hover {
+    border-color: #00aeff;
+    box-shadow: 0 0 15px rgba(0, 174, 255, 0.3);
+}
+
+/* 2. Cyberpunk Matrix */
+.theme-cyberpunk {
+    background: #030706;
+    color: #00ff88;
+}
+.theme-cyberpunk .preview-avatar { border: 3px solid #00ff88; box-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
+.theme-cyberpunk .preview-link-card {
+    background: rgba(0, 255, 136, 0.05);
+    border: 1px solid #00ff88;
+    color: #00ff88;
+}
+.theme-cyberpunk .preview-social-btn { background: rgba(0, 255, 136, 0.15); color: #00ff88; }
+
+/* 3. Minimal Clean White */
+.theme-minimal {
+    background: #f8fafc;
+    color: #0f172a;
+}
+.theme-minimal .preview-avatar { border: 3px solid #0f172a; }
+.theme-minimal .preview-link-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #0f172a;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+.theme-minimal .preview-social-btn { background: #e2e8f0; color: #0f172a; }
+
+/* 4. Sunset Gradient */
+.theme-sunset {
+    background: linear-gradient(135deg, #3b0764 0%, #be185d 50%, #f97316 100%);
+    color: #ffffff;
+}
+.theme-sunset .preview-avatar { border: 3px solid #f97316; }
+.theme-sunset .preview-link-card {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+}
+.theme-sunset .preview-social-btn { background: rgba(255, 255, 255, 0.2); }
+
+/* 5. Velvet Gold */
+.theme-velvet {
+    background: #09090b;
+    color: #fef08a;
+}
+.theme-velvet .preview-avatar { border: 3px solid #eab308; box-shadow: 0 0 20px rgba(234, 179, 8, 0.3); }
+.theme-velvet .preview-link-card {
+    background: rgba(24, 24, 27, 0.9);
+    border: 1px solid #ca8a04;
+    color: #fef08a;
+}
+.theme-velvet .preview-social-btn { background: rgba(234, 179, 8, 0.15); color: #eab308; }
+
+/* ==========================================================================
+   BLOCK TYPE TABS & CONTROLS
+   ========================================================================== */
+.block-type-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    overflow-x: auto;
+}
+
+.tab-btn {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-family: var(--font-primary);
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.tab-btn.active {
+    background: var(--primary-color);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 174, 255, 0.3);
+}
+
+.tab-btn:hover:not(.active) {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Theme Picker Grid */
+.theme-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.theme-card-option {
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--card-bg);
+}
+
+.theme-card-option.active {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 15px rgba(0, 174, 255, 0.35);
+    transform: translateY(-2px);
+}
+
+.theme-preview-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    margin: 0 auto 8px auto;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.theme-card-name {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+/* KPI Stat Badges */
+.stats-strip {
+    display: flex;
+    gap: 14px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.stat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: rgba(26, 32, 53, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: 9999px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.stat-pill i {
+    color: var(--primary-color);
+}
+
+/* Special PIX & WhatsApp Cards */
+.preview-link-card.type-pix {
+    border-left: 4px solid #10b981;
+}
+
+.preview-link-card.type-whatsapp {
+    border-left: 4px solid #25d366;
+}
+
+.preview-link-card.type-youtube {
+    border-left: 4px solid #ef4444;
+}
+
+.preview-link-card.type-spotify {
+    border-left: 4px solid #22c55e;
 }

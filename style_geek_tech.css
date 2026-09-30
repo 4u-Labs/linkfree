@@ -1,13 +1,13 @@
-/* === ImportaÃ§Ãµes e VariÃ¡veis Globais === */
+/* === Importações e Variáveis Globais === */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Roboto+Mono:wght@400;700&display=swap');
 
 :root {
     /* Paleta Dark Tech */
     --bg-color: #0a0f1f;         /* Azul muito escuro (quase preto) */
     --card-bg: #1a2035;         /* Azul acinzentado escuro para cards */
-    --primary-color: #00aeff;   /* Azul elÃ©trico/ciano para destaque */
+    --primary-color: #00aeff;   /* Azul elétrico/ciano para destaque */
     --secondary-color: #8a4fff; /* Roxo sutil para detalhes (opcional) */
-    --accent-color: #00ffaa;    /* Verde menta tech (usar com moderaÃ§Ã£o) */
+    --accent-color: #00ffaa;    /* Verde menta tech (usar com moderação) */
     --text-color: #e0e5f0;      /* Cinza muito claro (quase branco) */
     --text-muted: #a0aec0;      /* Cinza azulado mais claro */
     --border-color: #3a415c;    /* Borda azul acinzentada */
@@ -20,7 +20,7 @@
     --shadow-medium: 0 6px 20px rgba(0, 0, 0, 0.3);
     --border-radius: 6px; /* Bordas levemente arredondadas */
 
-    /* PadrÃ£o de fundo sutil (grade pontilhada) */
+    /* Padrão de fundo sutil (grade pontilhada) */
     --bg-pattern: radial-gradient(var(--border-color) 0.5px, transparent 0.5px);
     --bg-pattern-size: 15px 15px;
 }
@@ -48,7 +48,7 @@
     text-transform: uppercase;
 }
 
-/* === Reset BÃ¡sico e Estilos Globais === */
+/* === Reset Básico e Estilos Globais === */
 * {
     margin: 0;
     padding: 0;
@@ -108,10 +108,10 @@ a:hover {
     color: #fff;
     opacity: 0.9;
 }
-/* Removido estilo especÃ­fico de footer a:hover aqui, tratado na seÃ§Ã£o Footer */
+/* Removido estilo específico de footer a:hover aqui, tratado na seção Footer */
 
 
-/* === AnimaÃ§Ã£o de Entrada === */
+/* === Animação de Entrada === */
 .reveal {
     opacity: 0;
     transform: translateY(30px);
@@ -158,7 +158,7 @@ section:not(#hero)::before {
     opacity: 0.3;
 }
 
-/* === BotÃµes === */
+/* === Botões === */
 .btn {
     display: inline-block;
     padding: 14px 35px;
@@ -215,7 +215,7 @@ section:not(#hero)::before {
     outline-offset: 2px;
 }
 
-/* === CabeÃ§alho === */
+/* === Cabeçalho === */
 header {
     position: fixed;
     top: 0;
@@ -304,7 +304,7 @@ nav ul li a.active::after {
 }
 
 
-/* === SeÃ§Ã£o Hero === */
+/* === Seção Hero === */
 #hero {
     padding: 120px 0;
     background: linear-gradient(rgba(10, 15, 31, 0.85), rgba(10, 15, 31, 0.95)),
@@ -367,7 +367,7 @@ nav ul li a.active::after {
     to { opacity: 0.15; transform: scaleX(1.2); }
 }
 
-/* === SeÃ§Ã£o Como Funciona === */
+/* === Seção Como Funciona === */
 #como-funciona .steps-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -419,7 +419,7 @@ nav ul li a.active::after {
     margin-bottom: 0.8rem;
 }
 
-/* === SeÃ§Ã£o Funcionalidades === */
+/* === Seção Funcionalidades === */
 #funcionalidades .features-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -467,7 +467,7 @@ nav ul li a.active::after {
     color: var(--text-muted);
 }
 
-/* === SeÃ§Ã£o Para Quem Ã‰ === */
+/* === Seção Para Quem É === */
 #para-quem-e .audience-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -508,10 +508,10 @@ nav ul li a.active::after {
     font-size: 1rem;
 }
 
-/* === SeÃ§Ã£o Depoimentos === */
+/* === Seção Depoimentos === */
 #depoimentos .testimonials-container {
     display: grid;
-    /* Ajustado para 3 colunas se houver espaÃ§o, senÃ£o cai para menos */
+    /* Ajustado para 3 colunas se houver espaço, senão cai para menos */
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 40px;
 }
@@ -563,7 +563,7 @@ nav ul li a.active::after {
     font-size: 0.95rem;
 }
 
-/* === SeÃ§Ã£o FAQ === */
+/* === Seção FAQ === */
 #faq .faq-container {
     max-width: 900px;
     margin: 0 auto;
@@ -643,7 +643,7 @@ nav ul li a.active::after {
 
 
 
-/* === Responsividade (Manter ou ajustar se necessÃ¡rio) === */
+/* === Responsividade (Manter ou ajustar se necessário) === */
 /* ... (restante das regras de responsividade) ... */
 
 /* === Responsividade === */
@@ -676,7 +676,7 @@ nav ul li a.active::after {
         z-index: 999;
         border-top: 1px solid var(--border-color);
         overflow-y: auto;
-        /* NecessÃ¡rio display flex para o justify/align funcionar */
+        /* Necessário display flex para o justify/align funcionar */
         display: flex;
     }
 
