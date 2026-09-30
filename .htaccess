@@ -1,0 +1,12 @@
+Options -Indexes
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # Bloqueia download do banco e arquivos sensíveis
+    RewriteRule ^database\.db$ - [F,L]
+    RewriteRule ^config\.php$ - [F,L]
+    RewriteRule ^functions\.php$ - [F,L]
+    
+    # Força HTTPS (opcional)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
