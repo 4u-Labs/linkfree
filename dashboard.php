@@ -233,16 +233,16 @@ $publicUrl = BASE_URL . "/profile.php?tag=" . urlencode($userTag);
                     
                     <!-- Block Type Tabs -->
                     <div class="block-type-tabs">
-                        <button type="button" class="tab-btn active" onclick="switchBlockTab('link')">
+                        <button type="button" class="tab-btn active" data-tab="link" onclick="switchBlockTab('link', this)">
                             <i class="fas fa-link"></i> Link Padrão
                         </button>
-                        <button type="button" class="tab-btn" onclick="switchBlockTab('pix')">
+                        <button type="button" class="tab-btn" data-tab="pix" onclick="switchBlockTab('pix', this)">
                             <i class="fas fa-qrcode"></i> Chave PIX
                         </button>
-                        <button type="button" class="tab-btn" onclick="switchBlockTab('whatsapp')">
+                        <button type="button" class="tab-btn" data-tab="whatsapp" onclick="switchBlockTab('whatsapp', this)">
                             <i class="fab fa-whatsapp"></i> WhatsApp
                         </button>
-                        <button type="button" class="tab-btn" onclick="switchBlockTab('youtube')">
+                        <button type="button" class="tab-btn" data-tab="youtube" onclick="switchBlockTab('youtube', this)">
                             <i class="fab fa-youtube"></i> Vídeo / Música
                         </button>
                     </div>
@@ -360,23 +360,23 @@ $publicUrl = BASE_URL . "/profile.php?tag=" . urlencode($userTag);
                         <div class="form-group">
                             <label><i class="fas fa-palette"></i> Escolha o Tema do seu Perfil:</label>
                             <div class="theme-picker-grid">
-                                <div class="theme-card-option <?php echo ($userTheme === 'glass') ? 'active' : ''; ?>" onclick="selectTheme('glass')">
+                                <div class="theme-card-option <?php echo ($userTheme === 'glass') ? 'active' : ''; ?>" data-theme="glass" onclick="selectTheme('glass', this)">
                                     <div class="theme-preview-dot" style="background: linear-gradient(135deg, #0a0f1f, #00aeff);"></div>
                                     <div class="theme-card-name">Glass Dark</div>
                                 </div>
-                                <div class="theme-card-option <?php echo ($userTheme === 'cyberpunk') ? 'active' : ''; ?>" onclick="selectTheme('cyberpunk')">
+                                <div class="theme-card-option <?php echo ($userTheme === 'cyberpunk') ? 'active' : ''; ?>" data-theme="cyberpunk" onclick="selectTheme('cyberpunk', this)">
                                     <div class="theme-preview-dot" style="background: #030706; border-color: #00ff88;"></div>
                                     <div class="theme-card-name">Cyberpunk</div>
                                 </div>
-                                <div class="theme-card-option <?php echo ($userTheme === 'minimal') ? 'active' : ''; ?>" onclick="selectTheme('minimal')">
+                                <div class="theme-card-option <?php echo ($userTheme === 'minimal') ? 'active' : ''; ?>" data-theme="minimal" onclick="selectTheme('minimal', this)">
                                     <div class="theme-preview-dot" style="background: #ffffff; border-color: #cbd5e1;"></div>
                                     <div class="theme-card-name">Minimal</div>
                                 </div>
-                                <div class="theme-card-option <?php echo ($userTheme === 'sunset') ? 'active' : ''; ?>" onclick="selectTheme('sunset')">
+                                <div class="theme-card-option <?php echo ($userTheme === 'sunset') ? 'active' : ''; ?>" data-theme="sunset" onclick="selectTheme('sunset', this)">
                                     <div class="theme-preview-dot" style="background: linear-gradient(135deg, #be185d, #f97316);"></div>
                                     <div class="theme-card-name">Sunset</div>
                                 </div>
-                                <div class="theme-card-option <?php echo ($userTheme === 'velvet') ? 'active' : ''; ?>" onclick="selectTheme('velvet')">
+                                <div class="theme-card-option <?php echo ($userTheme === 'velvet') ? 'active' : ''; ?>" data-theme="velvet" onclick="selectTheme('velvet', this)">
                                     <div class="theme-preview-dot" style="background: #09090b; border-color: #eab308;"></div>
                                     <div class="theme-card-name">Velvet Gold</div>
                                 </div>
@@ -583,9 +583,14 @@ $publicUrl = BASE_URL . "/profile.php?tag=" . urlencode($userTag);
     }
 
     // Troca de Abas do Bloco
-    function switchBlockTab(type) {
+    function switchBlockTab(type, el) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        event.currentTarget.classList.add('active');
+        if (el && el.classList) {
+            el.classList.add('active');
+        } else {
+            const btn = document.querySelector(`.tab-btn[data-tab="${type}"]`);
+            if (btn) btn.classList.add('active');
+        }
         document.getElementById('blockTypeInput').value = type;
 
         const groupStandard = document.getElementById('groupStandardFields');
@@ -638,15 +643,22 @@ $publicUrl = BASE_URL . "/profile.php?tag=" . urlencode($userTag);
     }
 
     // Seleção de Tema
-    function selectTheme(themeName) {
+    function selectTheme(themeName, el) {
         currentTheme = themeName;
         document.getElementById('selectedThemeInput').value = themeName;
         document.querySelectorAll('.theme-card-option').forEach(c => c.classList.remove('active'));
-        event.currentTarget.classList.add('active');
+        if (el && el.classList) {
+            el.classList.add('active');
+        } else {
+            const card = document.querySelector(`.theme-card-option[data-theme="${themeName}"]`);
+            if (card) card.classList.add('active');
+        }
 
         // Atualiza mockup
         const screen = document.getElementById('livePhoneScreen');
-        screen.className = 'phone-screen theme-' + themeName;
+        if (screen) {
+            screen.className = 'phone-screen theme-' + themeName;
+        }
     }
 
     // Atualização em Tempo Real dos inputs no Mockup
@@ -690,7 +702,9 @@ $publicUrl = BASE_URL . "/profile.php?tag=" . urlencode($userTag);
                 this.reset();
                 switchBlockTab('link');
                 await recarregarPreview();
-                window.location.reload(); // Atualiza a lista estática e o preview
+                setTimeout(() => {
+                    window.location.reload();
+                }, 350);
             } else {
                 alert(data.message || 'Erro ao salvar bloco.');
             }
