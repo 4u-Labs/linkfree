@@ -312,21 +312,48 @@ $publicUrl = BASE_URL . "/profile.php?tag=" . urlencode($userTag);
                         <i class="fas fa-user-gear" style="color: var(--primary-color);"></i> Personalização do Perfil
                     </h3>
 
-                    <!-- Foto de Avatar -->
-                    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap;">
-                        <img src="<?php echo htmlspecialchars($avatarUrl); ?>" 
-                             id="dashboardAvatarImg"
-                             style="width:84px; height:84px; border-radius:50%; object-fit:cover; border:3px solid var(--primary-color); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                    <!-- Foto de Avatar Customizada -->
+                    <form method="POST" enctype="multipart/form-data" class="avatar-upload-wrapper">
+                        <input type="hidden" name="action" value="upload_avatar">
                         
-                        <form method="POST" enctype="multipart/form-data" style="flex: 1; min-width: 200px;">
-                            <input type="hidden" name="action" value="upload_avatar">
-                            <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 6px;">Trocar Foto de Perfil:</label>
-                            <input type="file" name="avatar" accept="image/*" required style="font-size:0.85rem; color: var(--text-muted); display:block; margin-bottom: 8px;">
-                            <button type="submit" class="btn btn-secondary" style="padding:6px 16px; font-size: 0.85rem;">
-                                <i class="fas fa-upload"></i> Salvar Nova Foto
-                            </button>
-                        </form>
-                    </div>
+                        <!-- Avatar Clicável com Badge de Câmera -->
+                        <div class="avatar-preview-box" onclick="document.getElementById('avatarFileInput').click()" title="Clique para escolher uma nova foto">
+                            <img src="<?php echo htmlspecialchars($avatarUrl); ?>" 
+                                 id="dashboardAvatarImg"
+                                 class="avatar-img"
+                                 alt="Avatar do Usuário">
+                            <div class="avatar-overlay-badge">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+
+                        <!-- Controles e Botões Estilizados -->
+                        <div class="avatar-actions-box">
+                            <div class="avatar-title-label">Foto de Perfil</div>
+                            
+                            <div class="avatar-buttons-row">
+                                <!-- Botão Estilizado Bonito -->
+                                <label for="avatarFileInput" class="btn-upload-picker">
+                                    <i class="fas fa-image"></i> Escolher Imagem
+                                </label>
+                                
+                                <input type="file" 
+                                       id="avatarFileInput" 
+                                       name="avatar" 
+                                       accept="image/png, image/jpeg, image/jpg, image/webp" 
+                                       style="display: none;" 
+                                       onchange="handleAvatarFileSelected(this)">
+                                
+                                <button type="submit" id="btnSaveAvatar" class="btn-upload-save" disabled>
+                                    <i class="fas fa-cloud-arrow-up"></i> Salvar Nova Foto
+                                </button>
+                            </div>
+
+                            <div class="avatar-file-name" id="avatarFileChosen">
+                                <i class="fas fa-circle-info"></i> JPG, PNG ou WEBP (máx. 2MB)
+                            </div>
+                        </div>
+                    </form>
 
                     <hr style="border-color: var(--border-color); margin: 20px 0;">
 
@@ -572,6 +599,38 @@ $publicUrl = BASE_URL . "/profile.php?tag=" . urlencode($userTag);
         }).catch(() => {
             prompt('Copie o link abaixo:', url);
         });
+    }
+
+    // Seleção e Preview de Imagem de Avatar
+    function handleAvatarFileSelected(input) {
+        const chosenSpan = document.getElementById('avatarFileChosen');
+        const saveBtn = document.getElementById('btnSaveAvatar');
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            
+            if (file.size > 2 * 1024 * 1024) {
+                alert('A imagem é muito grande! Selecione uma foto de até 2MB.');
+                input.value = '';
+                chosenSpan.innerHTML = '<span style="color:#ef4444;"><i class="fas fa-circle-exclamation"></i> Arquivo excede 2MB</span>';
+                saveBtn.disabled = true;
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('dashboardAvatarImg').src = e.target.result;
+                const prevAv = document.getElementById('prevAvatar');
+                if (prevAv) prevAv.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            chosenSpan.innerHTML = `<span style="color: #10b981; font-weight: 500;"><i class="fas fa-check-circle"></i> ${file.name}</span>`;
+            saveBtn.disabled = false;
+        } else {
+            chosenSpan.innerHTML = '<i class="fas fa-circle-info"></i> JPG, PNG ou WEBP (máx. 2MB)';
+            saveBtn.disabled = true;
+        }
     }
 
     // Modal QR Code
